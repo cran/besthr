@@ -317,7 +317,9 @@ print.hrest <- function(x, ...){
   group_col <- names(hrest$group_n)[ names(hrest$group_n) != "n" ][[1]]
 
   group_names <- hrest$group_n %>% dplyr::select(-.data$n)
-  group_names <- group_names[[1, drop = TRUE]]
+  #group_names <- group_names[[1, drop = TRUE]]
+  group_names <- group_names[[1]]
+
   group_names <- group_names[group_names != hrest$control]
 
   #col_name <- rlang::sym(group_col)
@@ -443,6 +445,7 @@ tech_rep_dot_plot <- function(hrest, score_col, group_col, tech_rep_col){
 #' @export
 #' @return ggplot object
 #' @importFrom stats quantile
+#' @importFrom ggplot2 stat
 plot.hrest <- function(x, ...,  which = "rank_simulation"){
   hrest <- x
   group_col <- names(hrest$group_n)[ names(hrest$group_n) != "n" ][[1]]
@@ -467,8 +470,8 @@ plot.hrest <- function(x, ...,  which = "rank_simulation"){
 
 
   b <- hrest$bootstraps %>%
-    ggplot2::ggplot() + ggplot2::aes(mean, rlang::UQ(group_col),
-                                     fill = factor("..quantile..")) +
+    ggplot2::ggplot() + ggplot2::aes(mean, !!group_col,
+                                     fill = factor(stat(quantile))) +
     ggplot2::xlim(min(hrest$ranked_data$rank), max(hrest$ranked_data$rank)) +
     ggridges::stat_density_ridges(geom = "density_ridges_gradient",
                                  calc_ecdf = TRUE,
