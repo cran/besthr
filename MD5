@@ -1,12 +1,12 @@
-4771cbb4c80b3706288eab9021938997 *DESCRIPTION
+d5450360e134ea89b4feb71f91e5fb70 *DESCRIPTION
 c802a501acf0d2e571c5e9f0bf7ce7c5 *LICENSE
-3f8f53b0a7fdd41021d9f8dde3eee33a *NAMESPACE
-db6c7f304810cdc19b83c202fe7f248d *R/functions.R
+4c2ac9939fe111460fa10bfa6afc4868 *NAMESPACE
+9ec2365df00f3668eee7a9ec52f8c418 *R/functions.R
 120a6a63cccfedcff9c19719ecc4c55b *R/utils-pipe.R
-b6610de6be5d36e51a34ca82c74b8652 *build/vignette.rds
+346ee3f0daa3c47ce156e8237d7eac90 *build/vignette.rds
 4158042cb27ff5011a322ead72797962 *inst/doc/basic-use.R
 97ed981015fc725a680680bb4c9b6653 *inst/doc/basic-use.Rmd
-6bf60c96be3c7ae7531e102ad647f14f *inst/doc/basic-use.html
+3970b876642215da0852290549e28657 *inst/doc/basic-use.html
 820e065ba6cbd56837fb80df9b7fc66a *inst/extdata/example-data-1.csv
 7400168b9ef83b2915d840675dc5859f *inst/extdata/example-data-2.csv
 b59dc1dfbac40c33bfde62fee737b879 *inst/extdata/example-data-3.csv

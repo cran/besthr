@@ -1,7 +1,7 @@
 Package: besthr
 Type: Package
 Title: Generating Bootstrap Estimation Distributions of HR Data
-Version: 0.3.1
+Version: 0.3.2
 Authors@R: c(person("Dan", "MacLean", role = c("aut","cre"), email = "dan.maclean@tsl.ac.uk") )
 Description: Creates plots showing scored HR experiments and plots of distribution of
     means of ranks of HR score from bootstrapping. Authors (2019) <doi:10.5281/zenodo.3374507>.
@@ -13,8 +13,8 @@ RoxygenNote: 7.1.2
 Suggests: knitr, rmarkdown, readr
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2022-10-06 10:48:30 UTC; macleand
+Packaged: 2023-04-14 05:47:55 UTC; taz23vul
 Author: Dan MacLean [aut, cre]
 Maintainer: Dan MacLean <dan.maclean@tsl.ac.uk>
 Repository: CRAN
-Date/Publication: 2022-10-06 11:10:02 UTC
+Date/Publication: 2023-04-14 08:50:08 UTC
