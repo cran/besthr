@@ -84,69 +84,321 @@ In the case where you have use technical replicates and want to see those plotte
 
 ```{r, fig.width=8, fig.height=6}
 
-hr_est_3 %>% 
+hr_est_3 %>%
   plot(which = "just_data")
+```
+
+## Built-in Themes and Color Palettes
+
+besthr uses a modern, colorblind-safe appearance by default. You can customize the look using themes and color palettes.
+
+### Theme Options
+
+Use the `theme` parameter to change the overall visual style:
+
+- `"modern"` (default) - A clean, contemporary style with refined typography
+- `"classic"` - The original besthr appearance (for backward compatibility)
+
+```{r, fig.width=8, fig.height=6}
+# Modern theme (default)
+plot(hr_est_1)
+
+# Classic theme (original style)
+plot(hr_est_1, theme = "classic")
+```
+
+### Color Palette Options
+
+Use the `colors` parameter to change the color palette:
+
+- `"okabe_ito"` (default) - Colorblind-safe Okabe-Ito palette
+- `"default"` - Original besthr colors (for backward compatibility)
+- `"viridis"` - Viridis color scale
+
+```{r, fig.width=8, fig.height=6}
+# Default is already colorblind-safe
+plot(hr_est_1)
+
+# Original colors
+plot(hr_est_1, colors = "default")
+
+# Viridis palette
+plot(hr_est_1, colors = "viridis")
+```
+
+### Quick Style Presets
+
+For easy customization without understanding all options, use preset styles:
+
+```{r, fig.width=8, fig.height=6}
+# Publication-ready style
+plot(hr_est_1, config = besthr_style("publication"))
+
+# Presentation style (larger elements)
+plot(hr_est_1, config = besthr_style("presentation"))
+
+# Density style (gradient density instead of points)
+plot(hr_est_1, config = besthr_style("density"))
+
+# See all available styles
+list_besthr_styles()
+```
+
+### Using besthr Palettes Directly
+
+The color palettes can also be used directly in your own ggplot2 code:
+```{r}
+# Get palette colors
+besthr_palette("okabe_ito", n = 4)
+
+# Available palettes
+besthr_palette("default", n = 3)
+besthr_palette("viridis", n = 3)
 ```
 
 ## Styling Plots
 
-You can style plots to your own taste. The object returned from `plot()` is a `patchwork` [https://patchwork.data-imaginist.com/](https://patchwork.data-imaginist.com/) object that composes two separate plots, the dot plot and the bootstrap percentile plot, which are themselves `ggplot` objects. So you can use a mixture of `patchwork` annotations functions for whole plot labels and `ggplot` themes for individual elements. 
+### Using Built-in Themes and Colors
 
-### Adding annotations.
+The easiest way to style your plots is using the `theme` and `colors` parameters:
 
-You can use the `patchwork` `plot_annotation()` function to add titles
+```{r, fig.width=8, fig.height=6}
+# Modern look with colorblind-safe colors (this is the default)
+plot(hr_est_1, theme = "modern", colors = "okabe_ito")
+
+# Classic appearance (original besthr style)
+plot(hr_est_1, theme = "classic", colors = "default")
+
+# Viridis color scheme
+plot(hr_est_1, colors = "viridis")
+```
+
+### Adding Titles and Annotations
+
+The plot object is a `patchwork` composition. You can add titles using `plot_annotation()`:
 
 ```{r, fig.width=8, fig.height=6}
 library(patchwork)
 
 p <- plot(hr_est_1)
 
-p + plot_annotation(title = 'A stylish besthr plot', 
-                    subtitle = "better than ever", 
-                    caption = 'Though this example is not meaningful')
-p
-
-
+p + plot_annotation(
+  title = 'HR Score Analysis',
+  subtitle = "Control vs Treatment",
+  caption = 'Generated with besthr'
+)
 ```
 
+## Advanced Configuration
 
-### Targetting a subplot to make theme changes
+For users who need fine-grained control over plot appearance, besthr provides a configuration system.
 
-You can change the style of the individual plot elements using subsetting syntax `[[]]` . The dot plot can be addressed within the `patchwork` object using index 1 within the `patchwork` object `p[[1]]`, and the percentile plot using `p[[2]]`. You must add to the existing subplot then assign the result back to see the difference in the plot. Here's an example that uses `theme()` to restyle the y-axis text of the dot plot
+### Using besthr_plot_config
+
+The `besthr_plot_config()` function creates a configuration object that controls all aspects of plot appearance:
+
+```{r}
+# Create a custom configuration
+cfg <- besthr_plot_config(
+  panel_widths = c(2, 1),        # Make data panel wider than bootstrap panel
+  point_size_range = c(3, 10),   # Larger points
+  point_alpha = 0.9,             # More opaque points
+  mean_line_width = 1.5,         # Thicker mean lines
+  theme_style = "modern",
+  color_palette = "okabe_ito"
+)
+
+print(cfg)
+```
 
 ```{r, fig.width=8, fig.height=6}
-library(ggplot2)
-p[[1]] <- p[[1]] + theme(axis.title.y = element_text(family = "Times", colour="blue", size=24))
-p
+# Use the configuration in plot
+plot(hr_est_1, config = cfg)
 ```
 
-
-### Changing the scale colours of a subplot
-
-You can change the colours used by the scales in the same way using the `scale` functions, though as the type of scale is different for the dot plot and bootstrap plot you will need to apply a different scale for each.
-
-For the dot plot, use a discrete scale e.g `scale_colour_manual()`, `scale_colour_viridis_d()` or `scale_colour_brewer(type = "qual")`
+You can update an existing configuration with `update_config()`:
 
 ```{r, fig.width=8, fig.height=6}
-p[[1]] <- p[[1]] + scale_colour_manual(values = c("blue", "#440000"))
-p
-
-p[[1]] <- p[[1]] + scale_colour_viridis_d()
-p
-
-p[[1]] <- p[[1]] + scale_colour_brewer(type="qual", palette="Accent")
-p
+# Modify just one setting
+cfg2 <- update_config(cfg, panel_widths = c(1, 2))
+plot(hr_est_1, config = cfg2)
 ```
 
-For the percentile plot, use only `scale_colour_manual()` with specified colours. Annoyingly, this rewrites the other values associated with the scale each time, so you'll need to replace those.
+### Configuration Options
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `panel_widths` | `c(1, 1)` | Relative widths of observation and bootstrap panels |
+| `y_limits` | `NULL` (auto) | Fixed y-axis limits, or NULL for automatic |
+| `y_expand` | `0.05` | Proportional expansion of y-axis limits |
+| `point_size_range` | `c(2, 8)` | Min/max point sizes based on count |
+| `point_alpha` | `0.8` | Point transparency (0-1) |
+| `mean_line_type` | `3` | Line type for mean indicators |
+| `mean_line_width` | `1` | Line width for mean indicators |
+| `density_alpha` | `0.7` | Bootstrap density transparency |
+| `density_style` | `"points"` | Density display: "points" (jittered bootstrap), "gradient", or "solid" |
+| `theme_style` | `"modern"` | Theme: "classic" or "modern" |
+| `color_palette` | `"okabe_ito"` | Colors: "default", "okabe_ito", or "viridis" |
+
+## Building Custom Plots
+
+For maximum flexibility, you can build plots from individual components.
+
+### Using besthr_data_view
+
+The `besthr_data_view()` function extracts all plotting data from an hrest object with unified axis limits:
+
+```{r}
+# Create a data view
+dv <- besthr_data_view(hr_est_1)
+print(dv)
+
+# Access the data
+head(dv$ranked)
+head(dv$bootstrap)
+dv$rank_limits
+```
+
+### Using Panel Builders
+
+You can build individual panels and compose them yourself:
+
+```{r, fig.width=10, fig.height=5}
+library(patchwork)
+
+# Create panels
+cfg <- besthr_plot_config(theme_style = "modern", color_palette = "okabe_ito")
+dv <- besthr_data_view(hr_est_1, cfg)
+
+p1 <- build_observation_panel(dv, cfg, "rank_simulation")
+p2 <- build_bootstrap_panel(dv, cfg)
+
+# Custom composition with different widths
+p1 + p2 + plot_layout(widths = c(3, 1))
+```
+
+## Alternative Visualizations
+
+### Raincloud Plots
+
+The `plot_raincloud()` function provides an alternative visualization showing jittered data points with confidence intervals:
+
+```{r, fig.width=6, fig.height=5}
+plot_raincloud(hr_est_1)
+```
+
+```{r, fig.width=6, fig.height=5}
+# With modern styling
+plot_raincloud(hr_est_1, theme = "modern", colors = "okabe_ito")
+```
+
+### Bootstrap Raincloud
+
+The `plot_bootstrap_raincloud()` function shows the bootstrap distribution as jittered points:
+
+```{r, fig.width=6, fig.height=5}
+plot_bootstrap_raincloud(hr_est_1)
+```
+
+## CI Color Customization
+
+The `derive_ci_colors()` function generates confidence interval colors that harmonize with the selected palette:
+
+```{r}
+# Default CI colors
+derive_ci_colors("default", "classic")
+
+# Okabe-Ito derived CI colors
+derive_ci_colors("okabe_ito", "modern")
+
+# Viridis derived CI colors
+derive_ci_colors("viridis", "classic")
+```
+
+
+## Significance and Effect Size
+
+```{r}
+# Create example data with 3 groups and realistic variation
+set.seed(42)
+d_effect <- data.frame(
+  score = c(
+    sample(1:4, 12, replace = TRUE),   # Group A: low scores (control)
+    sample(4:8, 12, replace = TRUE),   # Group B: medium-high scores
+    sample(6:10, 12, replace = TRUE)   # Group C: high scores
+  ),
+  group = rep(c("A", "B", "C"), each = 12)
+)
+hr_effect <- estimate(d_effect, score, group, control = "A", nits = 1000)
+```
+
+### Significance Annotations
+
+Add significance stars to groups where the bootstrap confidence interval does not overlap the control mean:
 
 ```{r, fig.width=8, fig.height=6}
-p[[2]] <- p[[2]] + scale_fill_manual(
-  values = c("blue", "pink", "yellow"),
-  name = "bootstrap percentile", labels=c("lower", "non-significant", "higher"),
-  guide = guide_legend(reverse=TRUE)
-  )
-p
+plot(hr_effect, show_significance = TRUE)
 ```
 
+### Effect Size Annotation
+
+Display effect size (difference from control) with confidence intervals:
+
+```{r, fig.width=8, fig.height=6}
+plot(hr_effect, show_effect_size = TRUE)
+```
+
+### Computing Statistics Directly
+
+You can access the significance and effect size calculations directly:
+
+```{r}
+# Compute significance
+compute_significance(hr_effect)
+
+# Compute effect sizes
+compute_effect_size(hr_effect)
+```
+
+## Summary Tables
+
+Generate publication-ready summary tables with `besthr_table()`:
+
+```{r}
+# Default tibble format
+besthr_table(hr_effect)
+
+# With significance stars
+besthr_table(hr_effect, include_significance = TRUE)
+
+# Markdown format
+besthr_table(hr_est_1, format = "markdown")
+```
+
+Other formats available: `"html"`, `"latex"`
+
+## Publication Export
+
+Save plots directly to publication-quality files:
+
+```{r, eval=FALSE}
+# Save to PNG (default 300 DPI)
+save_besthr(hr_est_1, "figure1.png")
+
+# Save to PDF
+save_besthr(hr_est_1, "figure1.pdf", width = 10, height = 8)
+
+# Save raincloud plot
+save_besthr(hr_est_1, "raincloud.png", type = "raincloud")
+
+# With custom options
+save_besthr(hr_est_1, "figure1.png",
+            theme = "modern",
+            colors = "okabe_ito",
+            width = 10,
+            height = 6,
+            dpi = 600)
+```
+
+Supported formats: PNG, PDF, SVG, TIFF, JPEG
 
